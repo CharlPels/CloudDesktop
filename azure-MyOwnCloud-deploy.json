@@ -109,7 +109,7 @@
     "virtualNetworkName": "[concat(parameters('VMName'),'_vnet')]",
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
     "subnetRef": "[concat(variables('vnetID'),'/subnets/',variables('subnetName'))]",
-    "scriptArgs": "[concat(' -cpelsEmail ', parameters('cpelsEmail'), ' -cpelsSerial ', parameters('cpelsSerial'))]",
+    "scriptArgs": "[concat(parameters('cpelsEmail'), ' ', parameters('cpelsSerial'))]",
     "dnsNameForPublicIP": "[concat(parameters('VMName'),'_pubip')]" 
   },
   "resources": [

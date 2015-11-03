@@ -57,13 +57,6 @@
       }
     },
 
-    "dnsNameForPublicIP": {
-      "type": "string",
-      "metadata": {
-        "description": "Unique DNS Name for the Public IP used to access the Virtual Machine."
-      }
-    },
-
     "location": {
       "type": "string",
       "defaultValue": "West Europe",
@@ -105,7 +98,8 @@
     "virtualNetworkName": "[concat(parameters('VMName'),'_vnet')]",
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
     "subnetRef": "[concat(variables('vnetID'),'/subnets/',variables('subnetName'))]",
-    "scriptArgs": "[concat(' -cpelsEmail ', parameters('cpelsEmail'), ' -cpelsSerial ', parameters('cpelsSerial'))]"
+    "scriptArgs": "[concat(' -cpelsEmail ', parameters('cpelsEmail'), ' -cpelsSerial ', parameters('cpelsSerial'))]",
+    "dnsNameForPublicIP": "[concat(parameters('VMName'),'_pubip')]" 
   },
   "resources": [
 
@@ -189,7 +183,7 @@
       "properties": {
         "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
         "dnsSettings": {
-          "domainNameLabel": "[tolower(parameters('dnsNameForPublicIP'))]"
+          "domainNameLabel": "[tolower(variables('publicIPAddressType'))]"
         }
       }
     },

@@ -96,21 +96,21 @@
     "imagePublisher": "MicrosoftWindowsServer",
     "imageOffer": "WindowsServer",
     "OSDiskName": "[concat(parameters('VMName'),'_osdisk')]",
-    "nicName": "[concat(parameters('VMName'),'_nic')]",
+    "nicName": "[concat(parameters('VMName'),'_nic', uniqueString(parameters('VMName')))]",
     "addressPrefix": "10.0.0.0/16",
     "subnetName": "[concat(parameters('VMName'),'_subnet')]",
     "subnetPrefix": "10.0.0.0/24",
-    "networkSecurityGroupName": "[concat(parameters('VMName'),'_nsg')]",
+    "networkSecurityGroupName": "[concat(parameters('VMName'),'_nsg', uniqueString(parameters('VMName')))]",
     "storageAccountType": "Standard_LRS",
-    "publicIPAddressName": "[concat(parameters('VMName'),'_pubip')]",
+    "publicIPAddressName": "[concat(parameters('VMName'),'_pubip', uniqueString(parameters('VMName')))]",
     "publicIPAddressType": "Dynamic",
     "vmStorageAccountContainerName": "vhds",
     "apiVersion": "2015-05-01-preview",
     "virtualNetworkName": "[concat(parameters('VMName'),'_vnet')]",
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
     "subnetRef": "[concat(variables('vnetID'),'/subnets/',variables('subnetName'))]",
-    "scriptArgs": "[concat(parameters('cpelsEmail'), ' ', parameters('cpelsSerial'))]",
-    "dnsNameForPublicIP": "[concat(parameters('VMName'),'_pubip')]" 
+    "scriptArgs": "[concat(' -cpelsEmail ', parameters('cpelsEmail'), ' -cpelsSerial ', parameters('cpelsSerial'))]",
+    "dnsNameForPublicIP": "[concat(parameters('VMName'), uniqueString(resourceGroup().id))]"
   },
   "resources": [
 
@@ -194,7 +194,7 @@
       "properties": {
         "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
         "dnsSettings": {
-          "domainNameLabel": "[tolower(variables('publicIPAddressType'))]"
+          "domainNameLabel": "[tolower(parameters('dnsNameForPublicIP'))]" 
         }
       }
     },

@@ -110,7 +110,7 @@
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
     "subnetRef": "[concat(variables('vnetID'),'/subnets/',variables('subnetName'))]",
     "scriptArgs": "[concat(' -cpelsEmail ', parameters('cpelsEmail'), ' -cpelsSerial ', parameters('cpelsSerial'))]",
-    "dnsNameForPublicIP": "[concat(parameters('VMName'), uniqueString(resourceGroup().id))]"
+    "dnsNameForPublicIP": "[concat(parameters('VMName'), uniqueString(parameters('VMName')))]"
   },
   "resources": [
 
@@ -194,7 +194,7 @@
       "properties": {
         "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
         "dnsSettings": {
-          "domainNameLabel": "[tolower(parameters('dnsNameForPublicIP'))]" 
+          "domainNameLabel": "[tolower(variables('dnsNameForPublicIP'))]" 
         }
       }
     },

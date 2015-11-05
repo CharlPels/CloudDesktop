@@ -3,34 +3,19 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
 
-    "windowsOSVersion": {
-      "type": "string",
-      "defaultValue": "2012-R2-Datacenter",
-      "allowedValues": [
-        "2012-R2-Datacenter",
-        "2016-Technical-Preview-3-with-Containers"
-      ],
-      "metadata": {
-        "description": "Windows OS Version"
-      }
-    },
-
     "VMName": {
       "type": "string",
+      "minLength": 5,
+      "maxLength": 15,
       "metadata": {
         "description": "This name will also be used to prefix the network security group, storage, virtual network, network card, subnet and public IP address name."
       }
     },
 
-    "newStorageAccountName": {
-      "type": "string",
-      "metadata": {
-        "description": "Unique DNS Name for the Storage Account where the Virtual Machine's disks will be placed."
-      }
-    },
-
     "adminUsername": {
       "type": "string",
+      "minLength": 5,
+      "maxLength": 20,
       "metadata": {
         "description": "Username for the Virtual Machine."
       }
@@ -38,6 +23,7 @@
 
     "adminPassword": {
       "type": "securestring",
+      "minLength": 5,
       "metadata": {
         "description": "Password for the Virtual Machine."
       }
@@ -45,6 +31,7 @@
 
     "cpelsEmail": {
       "type": "string",
+      "minLength": 5,
       "metadata": {
         "description": "Your Email address used during cpels account creation."
       }
@@ -52,6 +39,7 @@
 
     "cpelsSerial": {
       "type": "string",
+      "minLength": 2,
       "metadata": {
         "description": "Your cpels serial"
       }
@@ -87,12 +75,26 @@
       ],
       "metadata": {
         "description": "VM Size"
-          
+
+      }
+    },
+
+        "windowsOSVersion": {
+      "type": "string",
+      "defaultValue": "2012-R2-Datacenter",
+      "allowedValues": [
+        "2012-R2-Datacenter",
+        "2016-Technical-Preview-3-with-Containers"
+      ],
+      "metadata": {
+        "description": "Windows OS Version"
       }
     }
+
   },
   "variables": {
     "windowsOSVersion": "[concat(parameters('windowsOSVersion'))]",
+    "newStorageAccountName": "[concat('MOC', uniqueString(parameters('VMName')))]",
     "imagePublisher": "MicrosoftWindowsServer",
     "imageOffer": "WindowsServer",
     "OSDiskName": "[concat(parameters('VMName'),'_osdisk')]",
@@ -172,7 +174,7 @@
 
     {
       "type": "Microsoft.Storage/storageAccounts",
-      "name": "[tolower(parameters('newStorageAccountName'))]",
+      "name": "[tolower(variables('newStorageAccountName'))]",
       "apiVersion": "[variables('apiVersion')]",
       "location": "[parameters('location')]",
       "tags": {
@@ -269,7 +271,7 @@
         "displayName": "VirtualMachine"
       },
       "dependsOn": [
-        "[concat('Microsoft.Storage/storageAccounts/', parameters('newStorageAccountName'))]",
+        "[concat('Microsoft.Storage/storageAccounts/', variables('newStorageAccountName'))]",
         "[concat('Microsoft.Network/networkInterfaces/', variables('nicName'))]"
       ],
       "properties": {
@@ -291,7 +293,7 @@
           "osDisk": {
             "name": "osdisk",
             "vhd": {
-              "uri": "[concat('http://',parameters('newStorageAccountName'),'.blob.core.windows.net/',variables('vmStorageAccountContainerName'),'/',variables('OSDiskName'),'.vhd')]"
+              "uri": "[concat('http://',variables('newStorageAccountName'),'.blob.core.windows.net/',variables('vmStorageAccountContainerName'),'/',variables('OSDiskName'),'.vhd')]"
             },
             "caching": "ReadWrite",
             "createOption": "FromImage"

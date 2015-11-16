@@ -37,32 +37,11 @@
             "metadata": {
                 "description": "Your cpels serial"
             }
-        },
-        "_artifactsLocation": {
-            "type": "string",
-            "minLength": 1
-        },
-        "_artifactsLocationSasToken": {
-            "type": "securestring"
-        },
-        "Script2ScriptFolder": {
-            "type": "string",
-            "minLength": 1,
-            "metadata": {
-                "description": "Script file location. This path is relative to the _artifactsLocation parameter"
-            }
-        },
-        "Script2ScriptFileName": {
-            "type": "string",
-            "minLength": 1,
-            "metadata": {
-                "description": "Name of the script file"
-            }
         }
     },
     "variables": {
         "apiVersion": "2015-05-01-preview",
-        "scriptArgs": "[concat(parameters('cpelsEmail'), ' ', parameters('cpelsSerial'))]"
+        "scriptArgs": "[concat(parameters('cpelsEmail'), ' ', parameters('cpelsSerial'))]",
 
     },
     "resources": [

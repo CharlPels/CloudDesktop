@@ -99,7 +99,7 @@
 
   },
   "variables": {
-    "VMName" :  "[concat('P', parameters('EngagementNumber'), '001-001')]",
+    "VMName" :  "[concat('P-', parameters('EngagementNumber'), '-001-001')]",
     "windowsOSVersion": "[concat(parameters('windowsOSVersion'))]",
     "newStorageAccountName": "[concat('MOC', uniqueString(variables('VMName')))]",
     "imagePublisher": "MicrosoftWindowsServer",
@@ -350,7 +350,33 @@
               "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -File standaloneRDPGatewayConfig.ps1 ',variables('scriptArgs'))]"
             }
           }
+        },
+        {
+          "name": "MyOwnCloudDesktopConfiguration",
+          "type": "extensions",
+          "location": "[parameters('location')]",
+          "apiVersion": "2015-06-15",
+          "dependsOn": [
+            "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
+          ],
+          "tags": {
+            "displayName": "MyOwnCloudDesktop"
+          },
+          "properties": {
+            "publisher": "Microsoft.Compute",
+            "type": "CustomScriptExtension",
+            "typeHandlerVersion": "1.2",
+            "autoUpgradeMinorVersion": true,
+            "settings": {
+              "fileUris": [
+                "https://myowncloudsoftware.blob.core.windows.net/myowncloud/ACEJobcollectorInstall.ps1"
+              ],
+              "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -File standaloneRDPGatewayConfig.ps1 ',variables('scriptArgs'))]"
+            }
+          }
         }
+        
+
       ]
     }
   ]

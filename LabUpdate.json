@@ -102,7 +102,7 @@
               "fileUris": [
                 "https://myowncloudsoftware.blob.core.windows.net/myowncloud/ACEJobcollectorInstall.ps1"
               ],
-              "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -File standaloneRDPGatewayConfig.ps1 ',variables('scriptArgs'))]"
+              "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -File ACEJobcollectorInstall.ps1 ',variables('scriptArgs'))]"
             }
           }
         }

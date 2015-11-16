@@ -37,27 +37,6 @@
             "metadata": {
                 "description": "Your cpels serial"
             }
-        },
-        "_artifactsLocation": {
-            "type": "string",
-            "minLength": 1
-        },
-        "_artifactsLocationSasToken": {
-            "type": "securestring"
-        },
-        "Script2ScriptFolder": {
-            "type": "string",
-            "minLength": 1,
-            "metadata": {
-                "description": "Script file location. This path is relative to the _artifactsLocation parameter"
-            }
-        },
-        "Script2ScriptFileName": {
-            "type": "string",
-            "minLength": 1,
-            "metadata": {
-                "description": "Name of the script file"
-            }
         }
     },
     "variables": {
@@ -103,8 +82,8 @@
                         }
                     }
                 },
-                {
-                    "name": "Script2",
+				                {
+                    "name": "MyOwnCloudDesktopConfiguration",
                     "type": "extensions",
                     "location": "[parameters('location')]",
                     "apiVersion": "2015-06-15",
@@ -112,7 +91,7 @@
                         "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
                     ],
                     "tags": {
-                        "displayName": "Script2"
+                        "displayName": "MyOwnCloudDesktop"
                     },
                     "properties": {
                         "publisher": "Microsoft.Compute",
@@ -123,7 +102,7 @@
                             "fileUris": [
                                 "https://myowncloudsoftware.blob.core.windows.net/myowncloud/ACEJobcollectorInstall.ps1"
                             ],
-                            "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -File ACEJobcollectorInstall.ps1 ',variables('scriptArgs'))]"
+                            "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -File smyowncloud/ACEJobcollectorInstall.ps1 ',variables('scriptArgs'))]"
                         }
                     }
                 }

@@ -102,30 +102,6 @@
                             "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -File standaloneRDPGatewayConfig.ps1 ',variables('scriptArgs'))]"
                         }
                     }
-                },
-                {
-                    "name": "Script2",
-                    "type": "extensions",
-                    "location": "[parameters('location')]",
-                    "apiVersion": "2015-06-15",
-                    "dependsOn": [
-                        "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
-                    ],
-                    "tags": {
-                        "displayName": "Script2"
-                    },
-                    "properties": {
-                        "publisher": "Microsoft.Compute",
-                        "type": "CustomScriptExtension",
-                        "typeHandlerVersion": "1.2",
-                        "autoUpgradeMinorVersion": true,
-                        "settings": {
-                            "fileUris": [
-                                "https://myowncloudsoftware.blob.core.windows.net/myowncloud/ACEJobcollectorInstall.ps1"
-                            ],
-                            "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -File ACEJobcollectorInstall.ps1 ',variables('scriptArgs'))]"
-                        }
-                    }
                 }
             ]
         }

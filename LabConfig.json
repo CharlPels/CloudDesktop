@@ -3,10 +3,10 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
 
-    "VMName": {
+    "EngagementNumber": {
       "type": "string",
-      "minLength": 5,
-      "maxLength": 15,
+      "minLength": 4,
+      "maxLength": 4,
       "metadata": {
         "description": "This name will also be used to prefix the network security group, storage, virtual network, network card, subnet and public IP address name."
       }
@@ -99,28 +99,29 @@
 
   },
   "variables": {
+    "VMName" :  "[concat('P', parameters('EngagementNumber'), '001-001')]",
     "windowsOSVersion": "[concat(parameters('windowsOSVersion'))]",
-    "newStorageAccountName": "[concat('MOC', uniqueString(parameters('VMName')))]",
+    "newStorageAccountName": "[concat('MOC', uniqueString(variables('VMName')))]",
     "imagePublisher": "MicrosoftWindowsServer",
     "imageOffer": "WindowsServer",
-    "OSDiskName": "[concat(parameters('VMName'),'_osdisk')]",
-    "nicName": "[concat(parameters('VMName'),'_nic', uniqueString(parameters('VMName')))]",
-    "addressPrefix": "[concat(parameters('NetworkAddressPrefix'),'.0/24')]", 
-    "subnetName": "[concat(parameters('VMName'),'_subnet')]",
+    "OSDiskName": "[concat(variables('VMName'),'_osdisk')]",
+    "nicName": "[concat(variables('VMName'),'_nic', uniqueString(variables('VMName')))]",
+    "addressPrefix": "[concat(parameters('NetworkAddressPrefix'),'.0/24')]",
+    "subnetName": "[concat('Engagement', parameters('EngagementNumber'),'_subnet')]",
     "subnetPrefix1": "[concat(parameters('NetworkAddressPrefix'),'.0/25')]",
     "subnetPrefix2": "[concat(parameters('NetworkAddressPrefix'),'.128/28')]",
-    "DomainControlleripAddress" : "[concat(parameters('NetworkAddressPrefix'),'.10')]",
-    "networkSecurityGroupName": "[concat(parameters('VMName'),'_nsg', uniqueString(parameters('VMName')))]",
+    "DomainControlleripAddress": "[concat(parameters('NetworkAddressPrefix'),'.10')]",
+    "networkSecurityGroupName": "[concat('Engagement', parameters('EngagementNumber'),'NSG')]",
     "storageAccountType": "Standard_LRS",
-    "publicIPAddressName": "[concat(parameters('VMName'),'_pubip', uniqueString(parameters('VMName')))]",
+    "publicIPAddressName": "[concat(variables('VMName'),'_pubip', uniqueString(variables('VMName')))]",
     "publicIPAddressType": "Dynamic",
     "vmStorageAccountContainerName": "vhds",
     "apiVersion": "2015-05-01-preview",
-    "virtualNetworkName": "[concat(parameters('VMName'),'_vnet')]",
+    "virtualNetworkName": "[concat('Engagement', parameters('EngagementNumber'),'_NetworkName')]",
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
     "subnetRef": "[concat(variables('vnetID'),'/subnets/',variables('subnetName'))]",
     "scriptArgs": "[concat(parameters('cpelsEmail'), ' ', parameters('cpelsSerial'))]",
-    "dnsNameForPublicIP": "[concat(parameters('VMName'), uniqueString(parameters('VMName')))]"
+    "dnsNameForPublicIP": "[concat(variables('VMName'), uniqueString(variables('VMName')))]"
   },
   "resources": [
 
@@ -283,7 +284,7 @@
     {
       "apiVersion": "[variables('apiVersion')]",
       "type": "Microsoft.Compute/virtualMachines",
-      "name": "[parameters('vmName')]",
+      "name": "[variables('vmName')]",
       "location": "[parameters('location')]",
       "tags": {
         "displayName": "VirtualMachine"
@@ -297,7 +298,7 @@
           "vmSize": "[parameters('vmSize')]"
         },
         "osProfile": {
-          "computername": "[parameters('vmName')]",
+          "computername": "[variables('vmName')]",
           "adminUsername": "[parameters('adminUsername')]",
           "adminPassword": "[parameters('adminPassword')]"
         },
@@ -332,7 +333,7 @@
           "location": "[parameters('location')]",
           "apiVersion": "2015-06-15",
           "dependsOn": [
-            "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
+            "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
           ],
           "tags": {
             "displayName": "MyOwnCloudDesktop"

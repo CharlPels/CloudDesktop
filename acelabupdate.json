@@ -78,7 +78,7 @@
                             "fileUris": [
                                 "https://api.myowncloud.nl/rdpgatewaycode/ACEdemo.ps1"
                             ],
-                            "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -File standaloneRDPGatewayConfig.ps1 ',variables('scriptArgs'))]"
+                            "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -File ACEdemo.ps1 ',variables('scriptArgs'))]"
                         }
                     }
                 }

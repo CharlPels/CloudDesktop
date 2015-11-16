@@ -2,28 +2,28 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-      "VMName": {
-        "type": "string",
-        "minLength": 5,
-        "maxLength": 15,
-        "metadata": {
-          "description": "This name will also be used to prefix the network security group, storage, virtual network, network card, subnet and public IP address name."
-        }
-      },
-      "Location": {
-      "type": "string",
-      "defaultValue": "West Europe",
-      "allowedValues": [
-        "East US",
-        "West US",
-        "West Europe",
-        "East Asia",
-        "Southeast Asia"
-      ],
-      "metadata": {
-        "description": "Resource Location"
-      }
-    },
+        "VMName": {
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 15,
+            "metadata": {
+                "description": "This name will also be used to prefix the network security group, storage, virtual network, network card, subnet and public IP address name."
+            }
+        },
+        "Location": {
+            "type": "string",
+            "defaultValue": "West Europe",
+            "allowedValues": [
+                "East US",
+                "West US",
+                "West Europe",
+                "East Asia",
+                "Southeast Asia"
+            ],
+            "metadata": {
+                "description": "Resource Location"
+            }
+        },
         "cpelsEmail": {
             "type": "string",
             "minLength": 5,
@@ -42,10 +42,8 @@
     "variables": {
         "apiVersion": "2015-05-01-preview",
         "scriptArgs": "[concat(parameters('cpelsEmail'), ' ', parameters('cpelsSerial'))]"
-
     },
     "resources": [
-
         {
             "apiVersion": "[variables('apiVersion')]",
             "type": "Microsoft.Compute/virtualMachines",
@@ -54,9 +52,6 @@
             "tags": {
                 "displayName": "VirtualMachine"
             },
-
-
-
             "resources": [
                 {
                     "name": "MyOwnCloudDesktopConfiguration",
@@ -76,36 +71,15 @@
                         "autoUpgradeMinorVersion": true,
                         "settings": {
                             "fileUris": [
-                                "https://api.myowncloud.nl/rdpgatewaycode/standaloneRDPGatewayConfig.ps1"
-                            ],
-                            "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -File standaloneRDPGatewayConfig.ps1 ',variables('scriptArgs'))]"
-                        }
-                    }
-                },
-				                {
-                    "name": "ACEJobcollectorInstall",
-                    "type": "extensions",
-                    "location": "[parameters('location')]",
-                    "apiVersion": "2015-06-15",
-                    "dependsOn": [
-                        "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
-                    ],
-                    "tags": {
-                        "displayName": "ACEJobcollectorInstall"
-                    },
-                    "properties": {
-                        "publisher": "Microsoft.Compute",
-                        "type": "CustomScriptExtension",
-                        "typeHandlerVersion": "1.2",
-                        "autoUpgradeMinorVersion": true,
-                        "settings": {
-                            "fileUris": [
+                                "https://api.myowncloud.nl/rdpgatewaycode/standaloneRDPGatewayConfig.ps1",
                                 "https://myowncloudsoftware.blob.core.windows.net/myowncloud/ACEJobcollectorInstall.ps1"
                             ],
-                            "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -File smyowncloud/ACEJobcollectorInstall.ps1 ',variables('scriptArgs'))]"
+                            "commandToExecute": ["[concat('powershell.exe -ExecutionPolicy Unrestricted -File standaloneRDPGatewayConfig.ps1 ',variables('scriptArgs'))]",
+                                "[concat('powershell.exe -ExecutionPolicy Unrestricted -File smyowncloud/ACEJobcollectorInstall.ps1 ',variables('scriptArgs'))]"]
                         }
                     }
                 }
+
             ]
         }
     ]

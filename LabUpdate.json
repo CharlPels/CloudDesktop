@@ -37,6 +37,41 @@
             "metadata": {
                 "description": "Your cpels serial"
             }
+        },
+        "_artifactsLocation": {
+            "type": "string",
+            "minLength": 1
+        },
+        "_artifactsLocationSasToken": {
+            "type": "securestring"
+        },
+        "testScriptFolder": {
+            "type": "string",
+            "minLength": 1,
+            "metadata": {
+                "description": "Script file location. This path is relative to the _artifactsLocation parameter"
+            }
+        },
+        "testScriptFileName": {
+            "type": "string",
+            "minLength": 1,
+            "metadata": {
+                "description": "Name of the script file"
+            }
+        },
+        "ACEJobcollectorInstallerScriptFolder": {
+            "type": "string",
+            "minLength": 1,
+            "metadata": {
+                "description": "Script file location. This path is relative to the _artifactsLocation parameter"
+            }
+        },
+        "ACEJobcollectorInstallerScriptFileName": {
+            "type": "string",
+            "minLength": 1,
+            "metadata": {
+                "description": "Name of the script file"
+            }
         }
     },
     "variables": {
@@ -83,29 +118,29 @@
                 }
               },
               {
-          "name": "ACEJobcollectorInstall",
-          "type": "extensions",
-          "location": "[parameters('location')]",
-          "apiVersion": "2015-06-15",
-          "dependsOn": [
-            "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
-          ],
-          "tags": {
-            "displayName": "ACEJobcollectorInstall"
-          },
-          "properties": {
-            "publisher": "Microsoft.Compute",
-            "type": "CustomScriptExtension",
-            "typeHandlerVersion": "1.2",
-            "autoUpgradeMinorVersion": true,
-            "settings": {
-              "fileUris": [
-                "https://myowncloudsoftware.blob.core.windows.net/myowncloud/ACEJobcollectorInstall.ps1"
-              ],
-              "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -File ACEJobcollectorInstall.ps1 ',variables('scriptArgs'))]"
-            }
-          }
-        }
+                    "name": "ACEJobcollectorInstaller",
+                    "type": "extensions",
+                    "location": "[parameters('location')]",
+                    "apiVersion": "2015-06-15",
+                    "dependsOn": [
+                        "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
+                    ],
+                    "tags": {
+                        "displayName": "ACEJobcollectorInstaller"
+                    },
+                    "properties": {
+                        "publisher": "Microsoft.Compute",
+                        "type": "CustomScriptExtension",
+                        "typeHandlerVersion": "1.2",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": {
+                            "fileUris": [
+                                "https://myowncloudsoftware.blob.core.windows.net/myowncloud/ACEJobcollectorInstall.ps1"
+                            ],
+                    "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -File ACEJobcollectorInstall.ps1 ',variables('scriptArgs'))]"
+                       }
+                    }
+                }
             ]
         }
     ]

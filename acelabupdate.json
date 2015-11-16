@@ -83,7 +83,7 @@
                     }
                 },
 				                {
-                    "name": "MyOwnCloudDesktopConfiguration",
+                    "name": "ACEJobcollectorInstall",
                     "type": "extensions",
                     "location": "[parameters('location')]",
                     "apiVersion": "2015-06-15",
@@ -91,7 +91,7 @@
                         "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
                     ],
                     "tags": {
-                        "displayName": "MyOwnCloudDesktop"
+                        "displayName": "ACEJobcollectorInstall"
                     },
                     "properties": {
                         "publisher": "Microsoft.Compute",

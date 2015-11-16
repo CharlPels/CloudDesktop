@@ -105,7 +105,7 @@
     "imageOffer": "WindowsServer",
     "OSDiskName": "[concat(parameters('VMName'),'_osdisk')]",
     "nicName": "[concat(parameters('VMName'),'_nic', uniqueString(parameters('VMName')))]",
-    "addressPrefix": "concat(parameters('NetworkAddressPrefix'))", 
+    "addressPrefix": "[concat(parameters('NetworkAddressPrefix'),'.0/24')]", 
     "subnetName": "[concat(parameters('VMName'),'_subnet')]",
     "subnetPrefix1": "[concat(parameters('NetworkAddressPrefix'),'.0/25')]",
     "subnetPrefix2": "[concat(parameters('NetworkAddressPrefix'),'.128/28')]",

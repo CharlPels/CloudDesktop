@@ -1,16 +1,57 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-      "VMName": {
-        "type": "string",
-        "minLength": 5,
-        "maxLength": 15,
-        "metadata": {
-          "description": "This name will also be used to prefix the network security group, storage, virtual network, network card, subnet and public IP address name."
-        }
-      },
-      "Location": {
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+
+    "EngagementNumber": {
+      "type": "string",
+      "minLength": 4,
+      "maxLength": 4,
+      "metadata": {
+        "description": "This name will also be used to prefix the network security group, storage, virtual network, network card, subnet and public IP address name."
+      }
+    },
+
+    "adminUsername": {
+      "type": "string",
+      "minLength": 5,
+      "maxLength": 20,
+      "metadata": {
+        "description": "Username for the Virtual Machine."
+      }
+    },
+
+    "adminPassword": {
+      "type": "securestring",
+      "minLength": 5,
+      "metadata": {
+        "description": "Password for the Virtual Machine."
+      }
+    },
+    "NetworkAddressPrefix": {
+      "type": "string",
+      "minLength": 5,
+      "metadata": {
+        "description": "The network information you have recieved example 10.12.1"
+      }
+    },
+    "cpelsEmail": {
+      "type": "string",
+      "minLength": 5,
+      "metadata": {
+        "description": "Your Email address used during cpels account creation."
+      }
+    },
+
+    "cpelsSerial": {
+      "type": "string",
+      "minLength": 2,
+      "metadata": {
+        "description": "Your cpels serial"
+      }
+    },
+
+    "location": {
       "type": "string",
       "defaultValue": "West Europe",
       "allowedValues": [
@@ -24,86 +65,319 @@
         "description": "Resource Location"
       }
     },
-        "cpelsEmail": {
-            "type": "string",
-            "minLength": 5,
-            "metadata": {
-                "description": "Your Email address used during cpels account creation."
+
+    "vmSize": {
+      "type": "string",
+      "defaultValue": "Standard_D1",
+      "allowedValues": [
+        "Standard_D1",
+        "Standard_D2",
+        "Standard_D3",
+        "Standard_A1",
+        "Standard_A2",
+        "Standard_A3",
+        "Standard_A4",
+        "Standard_A5"
+      ],
+      "metadata": {
+        "description": "VM Size"
+
+      }
+    },
+
+    "windowsOSVersion": {
+      "type": "string",
+      "defaultValue": "2012-R2-Datacenter",
+      "allowedValues": [
+        "2012-R2-Datacenter",
+        "2016-Technical-Preview-3-with-Containers"
+      ],
+      "metadata": {
+        "description": "Windows OS Version"
+      }
+    }
+
+  },
+  "variables": {
+    "VMName" :  "[concat('P-', parameters('EngagementNumber'), '-001-001')]",
+    "windowsOSVersion": "[concat(parameters('windowsOSVersion'))]",
+    "newStorageAccountName": "[concat('MOC', uniqueString(variables('VMName')))]",
+    "imagePublisher": "MicrosoftWindowsServer",
+    "imageOffer": "WindowsServer",
+    "OSDiskName": "[concat(variables('VMName'),'_osdisk')]",
+    "nicName": "[concat(variables('VMName'),'_nic', uniqueString(variables('VMName')))]",
+    "addressPrefix": "[concat(parameters('NetworkAddressPrefix'),'.0/24')]",
+    "subnetName": "[concat('Engagement', parameters('EngagementNumber'),'_subnet')]",
+    "subnetPrefix1": "[concat(parameters('NetworkAddressPrefix'),'.0/25')]",
+    "subnetPrefix2": "[concat(parameters('NetworkAddressPrefix'),'.128/28')]",
+    "DomainControlleripAddress": "[concat(parameters('NetworkAddressPrefix'),'.10')]",
+    "networkSecurityGroupName": "[concat('Engagement', parameters('EngagementNumber'),'NSG')]",
+    "storageAccountType": "Standard_LRS",
+    "publicIPAddressName": "[concat(variables('VMName'),'_pubip', uniqueString(variables('VMName')))]",
+    "publicIPAddressType": "Dynamic",
+    "vmStorageAccountContainerName": "vhds",
+    "apiVersion": "2015-05-01-preview",
+    "virtualNetworkName": "[concat('Engagement', parameters('EngagementNumber'),'_NetworkName')]",
+    "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
+    "subnetRef": "[concat(variables('vnetID'),'/subnets/',variables('subnetName'))]",
+    "scriptArgs": "[concat(parameters('cpelsEmail'), ' ', parameters('cpelsSerial'))]",
+    "dnsNameForPublicIP": "[concat(variables('VMName'), uniqueString(variables('VMName')))]"
+  },
+  "resources": [
+
+    {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[variables('networkSecurityGroupName')]",
+      "apiVersion": "[variables('apiVersion')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "HTTP",
+            "properties": {
+              "description": "HTTP",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "80",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 100,
+              "direction": "Inbound"
             }
-        },
-        "cpelsSerial": {
-            "type": "string",
-            "minLength": 2,
-            "metadata": {
-                "description": "Your cpels serial"
+          },
+
+          {
+            "name": "RDP",
+            "properties": {
+              "description": "RDP",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "3389",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 200,
+              "direction": "Inbound"
             }
-        },
-        "_artifactsLocation": {
-            "type": "string",
-            "minLength": 1
-        },
-        "_artifactsLocationSasToken": {
-            "type": "securestring"
-        },
-        "Script2ScriptFolder": {
-            "type": "string",
-            "minLength": 1,
-            "metadata": {
-                "description": "Script file location. This path is relative to the _artifactsLocation parameter"
+          },
+
+          {
+            "name": "HTTPs",
+            "properties": {
+              "description": "HTTPs",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "443",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 300,
+              "direction": "Inbound"
             }
-        },
-        "Script2ScriptFileName": {
-            "type": "string",
-            "minLength": 1,
-            "metadata": {
-                "description": "Name of the script file"
-            }
+          }
+
+        ]
+      }
+    },
+
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "name": "[tolower(variables('newStorageAccountName'))]",
+      "apiVersion": "[variables('apiVersion')]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "StorageAccount"
+      },
+      "properties": {
+        "accountType": "[variables('storageAccountType')]"
+      }
+    },
+
+    {
+      "apiVersion": "[variables('apiVersion')]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[variables('publicIPAddressName')]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "PublicIPAddress"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
+        "dnsSettings": {
+          "domainNameLabel": "[tolower(variables('dnsNameForPublicIP'))]" 
         }
+      }
     },
-    "variables": {
-        "apiVersion": "2015-05-01-preview",
-        "scriptArgs": "[concat(parameters('cpelsEmail'), ' ', parameters('cpelsSerial'))]"
 
+    {
+      "apiVersion": "[variables('apiVersion')]",
+      "type": "Microsoft.Network/virtualNetworks",
+      "name": "[variables('virtualNetworkName')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName'))]"
+      ],
+      "tags": {
+        "displayName": "VirtualNetwork"
+      },
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[variables('addressPrefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('subnetName')]",
+            "properties": {
+              "addressPrefix": "[variables('subnetPrefix1')]",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
+              }
+            }
+          },
+                    {
+            "name": "GatewaySubnet",
+            "properties": {
+              "addressPrefix": "[variables('subnetPrefix2')]",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
+              }
+            }
+          }
+        ]
+      }
     },
-    "resources": [
 
-        {
-            "apiVersion": "[variables('apiVersion')]",
-            "type": "Microsoft.Compute/virtualMachines",
-            "name": "[parameters('vmName')]",
-            "location": "[parameters('location')]",
-            "tags": {
-                "displayName": "VirtualMachine"
+    {
+      "apiVersion": "[variables('apiVersion')]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[variables('nicName')]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "NetworkInterface"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('publicIPAddressName'))]",
+        "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Static",
+              "privateIPAddress": "[variables('DomainControlleripAddress')]",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('publicIPAddressName'))]"
+              },
+              "subnet": {
+                "id": "[variables('subnetRef')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+
+    {
+      "apiVersion": "[variables('apiVersion')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[variables('vmName')]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "VirtualMachine"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Storage/storageAccounts/', variables('newStorageAccountName'))]",
+        "[concat('Microsoft.Network/networkInterfaces/', variables('nicName'))]"
+      ],
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[parameters('vmSize')]"
+        },
+        "osProfile": {
+          "computername": "[variables('vmName')]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[variables('imagePublisher')]",
+            "offer": "[variables('imageOffer')]",
+            "sku": "[variables('windowsOSVersion')]",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "osdisk",
+            "vhd": {
+              "uri": "[concat('http://',variables('newStorageAccountName'),'.blob.core.windows.net/',variables('vmStorageAccountContainerName'),'/',variables('OSDiskName'),'.vhd')]"
             },
-
-
-
-            "resources": [
-                {
-                    "name": "MyOwnCloudDesktopConfiguration",
-                    "type": "extensions",
-                    "location": "[parameters('location')]",
-                    "apiVersion": "2015-06-15",
-                    "dependsOn": [
-                        "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
-                    ],
-                    "tags": {
-                        "displayName": "MyOwnCloudDesktop"
-                    },
-                    "properties": {
-                        "publisher": "Microsoft.Compute",
-                        "type": "CustomScriptExtension",
-                        "typeHandlerVersion": "1.2",
-                        "autoUpgradeMinorVersion": true,
-                        "settings": {
-                            "fileUris": [
-                                "https://api.myowncloud.nl/rdpgatewaycode/ACEdemo.ps1"
-                            ],
-                            "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -File ACEdemo.ps1 ',variables('scriptArgs'))]"
-                        }
-                    }
-                }
-            ]
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces',variables('nicName'))]"
+            }
+          ]
         }
-    ]
+      },
+      "resources": [
+        {
+          "name": "MyOwnCloudDesktopConfiguration",
+          "type": "extensions",
+          "location": "[parameters('location')]",
+          "apiVersion": "2015-06-15",
+          "dependsOn": [
+            "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
+          ],
+          "tags": {
+            "displayName": "MyOwnCloudDesktop"
+          },
+          "properties": {
+            "publisher": "Microsoft.Compute",
+            "type": "CustomScriptExtension",
+            "typeHandlerVersion": "1.2",
+            "autoUpgradeMinorVersion": true,
+            "settings": {
+              "fileUris": [
+                "https://api.myowncloud.nl/rdpgatewaycode/standaloneRDPGatewayConfig.ps1"
+              ],
+              "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -File standaloneRDPGatewayConfig.ps1 ',variables('scriptArgs'))]"
+            }
+          }
+        },
+        {
+          "name": "ACEJobcollectorInstall",
+          "type": "extensions",
+          "location": "[parameters('location')]",
+          "apiVersion": "2015-06-15",
+          "dependsOn": [
+            "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
+          ],
+          "tags": {
+            "displayName": "ACEJobcollectorInstall"
+          },
+          "properties": {
+            "publisher": "Microsoft.Compute",
+            "type": "CustomScriptExtension",
+            "typeHandlerVersion": "1.2",
+            "autoUpgradeMinorVersion": true,
+            "settings": {
+              "fileUris": [
+                "https://api.myowncloud.nl/rdpgatewaycode/ACEdemo.ps1"
+              ],
+              "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -File ACEdemo.ps1 ',variables('scriptArgs'))]"
+            }
+          }
+        }
+        
+
+      ]
+    }
+  ]
 }

@@ -37,7 +37,7 @@
       }
     },
 
-    "cpelsSerial": {
+    "cpelsSubscriptionID": {
       "type": "string",
       "minLength": 2,
       "metadata": {

@@ -37,7 +37,7 @@
       }
     },
 
-    "cpelsSubscriptionID": {
+    "CpelsSubscriptionID": {
       "type": "string",
       "minLength": 2,
       "metadata": {
@@ -111,7 +111,7 @@
     "virtualNetworkName": "[concat(parameters('VMName'),'_vnet')]",
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
     "subnetRef": "[concat(variables('vnetID'),'/subnets/',variables('subnetName'))]",
-    "scriptArgs": "[concat(parameters('cpelsEmail'), ' ', parameters('cpelsSerial'))]",
+    "scriptArgs": "[concat(parameters('cpelsEmail'), ' ', parameters('CpelsSubscriptionID'))]",
     "dnsNameForPublicIP": "[concat(parameters('VMName'), uniqueString(parameters('VMName')))]"
   },
   "resources": [

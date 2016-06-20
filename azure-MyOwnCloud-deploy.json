@@ -35,9 +35,8 @@
       "metadata": {
         "description": "Your Email address used for sending connection information."
       }
-    }
     },
-
+  
     "location": {
       "type": "string",
       "defaultValue": "West Europe",

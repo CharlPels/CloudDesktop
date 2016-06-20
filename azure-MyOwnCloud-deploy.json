@@ -33,16 +33,9 @@
       "type": "string",
       "minLength": 5,
       "metadata": {
-        "description": "Your Email address used during cpels account creation."
+        "description": "Your Email address used for sending connection information."
       }
-    },
-
-    "CpelsSubscriptionID": {
-      "type": "string",
-      "minLength": 2,
-      "metadata": {
-        "description": "Your cpels serial"
-      }
+    }
     },
 
     "location": {
@@ -111,7 +104,7 @@
     "virtualNetworkName": "[concat(parameters('VMName'),'_vnet')]",
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
     "subnetRef": "[concat(variables('vnetID'),'/subnets/',variables('subnetName'))]",
-    "scriptArgs": "[concat(parameters('cpelsEmail'), ' ', parameters('CpelsSubscriptionID'))]",
+    "scriptArgs": "[concat(parameters('cpelsEmail')]",
     "dnsNameForPublicIP": "[concat(parameters('VMName'), uniqueString(parameters('VMName')))]"
   },
   "resources": [
@@ -326,7 +319,7 @@
             "autoUpgradeMinorVersion": true,
             "settings": {
               "fileUris": [
-                "https://api.myowncloud.nl/rdpgatewaycode/standaloneRDPGatewayConfig.ps1"
+                "http://mydesktop-2016.azurewebsites.net/static/mydesktop-support/standaloneRDPGatewayConfig.ps1"
               ],
               "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -File standaloneRDPGatewayConfig.ps1 ',variables('scriptArgs'))]"
             }

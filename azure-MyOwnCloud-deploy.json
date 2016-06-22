@@ -29,7 +29,7 @@
       }
     },
 
-    "cpelsEmail": {
+    "YourEmailAddress": {
       "type": "string",
       "minLength": 5,
       "metadata": {
@@ -89,7 +89,7 @@
     "virtualNetworkName": "[concat(parameters('VMName'),'_vnet')]",
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
     "subnetRef": "[concat(variables('vnetID'),'/subnets/',variables('subnetName'))]",
-    "scriptArgs": "[concat(parameters('cpelsEmail'))]",
+    "scriptArgs": "[concat(parameters('YourEmailAddress'))]",
     "dnsNameForPublicIP": "[concat(parameters('VMName'), uniqueString(parameters('VMName')))]"
   },
   "resources": [

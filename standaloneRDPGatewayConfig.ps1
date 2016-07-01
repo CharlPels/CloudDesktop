@@ -49,7 +49,7 @@ $response = Invoke-RestMethod -Method "post" -Uri "https://mydesktop-api.cpels.c
 $source = $response.info.keysource
 $certdestination = "c:\support\key.p12"
 Invoke-WebRequest $source -OutFile $certdestination
-$mypwd = ConvertTo-SecureString -String $response.info.keypass -Force –AsPlainText
+$mypwd = ConvertTo-SecureString -String $response.info.keypass -Force -AsPlainText 
 $Thumbprint = Import-PfxCertificate –FilePath $certdestination cert:\localMachine\my -Password $mypwd -Confirm:$false
 
 $HostName = $response.info.dnsname

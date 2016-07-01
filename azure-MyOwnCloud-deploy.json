@@ -304,7 +304,7 @@
             "autoUpgradeMinorVersion": true,
             "settings": {
               "fileUris": [
-                "http://mydesktop-2016.azurewebsites.net/static/mydesktop-support/standaloneRDPGatewayConfig.ps1"
+                "https://raw.githubusercontent.com/CharlPels/CloudDesktop/master/standaloneRDPGatewayConfig.ps1"
               ],
               "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -File standaloneRDPGatewayConfig.ps1 ',variables('scriptArgs'))]"
             }

@@ -62,7 +62,7 @@
       "defaultValue": "2012-R2-Datacenter",
       "allowedValues": [
         "2012-R2-Datacenter",
-        "2016-Technical-Preview-with-Containers"
+        "2016-Datacenter"
       ],
       "metadata": {
         "description": "Windows OS Version"

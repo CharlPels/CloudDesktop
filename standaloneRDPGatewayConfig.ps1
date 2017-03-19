@@ -66,7 +66,7 @@ $body = @{
 
 ConvertTo-Json $body
 try{
-$response = Invoke-RestMethod -Method "post" -Uri "https://mydesktopfunction.azurewebsites.net/mydesktop/api/v1.0/createupdatedns" -Body (ConvertTo-Json $body) -ContentType application/json
+$response = Invoke-RestMethod -Method "post" -Uri "https://mydesktopfunction.azurewebsites.net/api/RequestDnsEntry?code=d16Joako2zN0VMKj5KaEVmnAoNAaWWZqjyWHRuqxuPbGf79Qo56NdA==" -Body (ConvertTo-Json $body) -ContentType application/json
 
 $response = ConvertFrom-Json $response
 }

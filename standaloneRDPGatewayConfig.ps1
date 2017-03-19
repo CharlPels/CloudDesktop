@@ -46,14 +46,14 @@ $destination = "c:\support\standaloneRDPGatewayConfig.ps1"
 if ((Test-Path $destination) -eq $false)
 {
 	$source = "https://raw.githubusercontent.com/CharlPels/CloudDesktop/master/standaloneRDPGatewayConfig.ps1"
-	Invoke-WebRequest $source -OutFile $destination
+	Invoke-WebRequest $source -OutFile $destination	-ContentType text/plain
 }
 $destination = "c:\support\updateserverServeronStartup.xml"
 if ((Test-Path $destination) -eq $false)
 {
 	$source = "https://raw.githubusercontent.com/CharlPels/CloudDesktop/master/updateserverServeronStartup.xml"
 	$destination = "c:\support\updateserverServeronStartup.xml"
-	Invoke-WebRequest $source -OutFile $destination	
+	Invoke-WebRequest $source -OutFile $destination	-ContentType text/plain
     #Create Schedulet task
     schtasks.exe /create /RU system /TN updateserverServeronStartup /XML c:\support\updateserverServeronStartup.xml
 }

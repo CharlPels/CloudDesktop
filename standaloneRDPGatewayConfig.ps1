@@ -51,7 +51,7 @@ if ((Test-Path $destination) -eq $false)
 $destination = "c:\support\updateserverServeronStartup.xml"
 if ((Test-Path $destination) -eq $false)
 {
-	$source = "https://raw.githubusercontent.com/CharlPels/CloudDesktop/master/updateserverServeronStartup.xml"
+	$source = "https://mydesktopfunctions.blob.core.windows.net/deploymentscript/updateserverServeronStartup.xml"
 	$destination = "c:\support\updateserverServeronStartup.xml"
 	Invoke-WebRequest $source -OutFile $destination	-ContentType text/plain
     #Create Schedulet task
@@ -77,9 +77,9 @@ break}
 $source = $response.keysource
 $certdestination = "c:\support\key.p12"
 Invoke-WebRequest $source -OutFile $certdestination
-$mypwd = ConvertTo-SecureString -String $response.keypass -Force –AsPlainText
+$mypwd = ConvertTo-SecureString -String $response.keypass -Force -AsPlainText
 try{
-$Thumbprint = Import-PfxCertificate –FilePath $certdestination cert:\localMachine\my -Password $mypwd -Confirm:$false
+$Thumbprint = Import-PfxCertificate -FilePath $certdestination cert:\localMachine\my -Password $mypwd -Confirm:$false
 }
 catch {
 #We need to break if certifacte instalation fails

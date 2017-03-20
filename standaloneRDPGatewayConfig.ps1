@@ -123,7 +123,7 @@ if (((Get-ItemProperty -Path "HKLM:\Software\Microsoft\Windows NT\CurrentVersion
 	
 	#Alter iis start page
 	#C:\inetpub\wwwroot\iisstart.htm
-	$source = "https://mydesktop-api.cpels.com/static/mydesktop-support/iisstart.htm"
+	$source = "https://raw.githubusercontent.com/CharlPels/CloudDesktop/master/iisstart.htm"
 	Invoke-WebRequest $source -OutFile "C:\inetpub\wwwroot\iisstart.htm"
 	
 	Set-WebConfigurationProperty -pspath "iis:\Sites\Default Web Site\RDWeb\Pages" -filter "/appSettings/add[@key='DefaultTSGateway']" -name value -Value "$HostName"

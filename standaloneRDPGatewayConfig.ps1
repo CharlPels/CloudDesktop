@@ -45,13 +45,13 @@ if ((Test-Path "c:\support") -eq $false){mkdir "c:\support"}
 $destination = "c:\support\standaloneRDPGatewayConfig.ps1"
 if ((Test-Path $destination) -eq $false)
 {
-	$source = "https://mydesktopfunctions.blob.core.windows.net/deploymentscript/standaloneRDPGatewayConfig.ps1"
+	$source = "https://raw.githubusercontent.com/CharlPels/CloudDesktop/master/standaloneRDPGatewayConfig.ps1"
 	Invoke-WebRequest $source -OutFile $destination	-ContentType text/plain
 }
 $destination = "c:\support\updateserverServeronStartup.xml"
 if ((Test-Path $destination) -eq $false)
 {
-	$source = "https://mydesktopfunctions.blob.core.windows.net/deploymentscript/updateserverServeronStartup.xml"
+	$source = "https://raw.githubusercontent.com/CharlPels/CloudDesktop/master/updateserverServeronStartup.xml"
 	$destination = "c:\support\updateserverServeronStartup.xml"
 	Invoke-WebRequest $source -OutFile $destination	-ContentType text/plain
     #Create Schedulet task

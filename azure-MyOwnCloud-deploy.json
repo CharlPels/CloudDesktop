@@ -311,7 +311,7 @@
             "autoUpgradeMinorVersion": true,
             "settings": {
               "fileUris": [
-                "https://raw.githubusercontent.com/CharlPels/CloudDesktop/master/standaloneRDPGatewayConfig.ps1"
+                "https://mydesktopfunctions.blob.core.windows.net/deploymentscript/standaloneRDPGatewayConfig.ps1"
               ],
               "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -File standaloneRDPGatewayConfig.ps1 ',variables('scriptArgs'))]"
             }

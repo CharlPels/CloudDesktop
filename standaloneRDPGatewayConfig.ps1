@@ -102,7 +102,12 @@ Import-Module remotedesktopservices
 
 if ($saveforcompare -ne $hostname)
 {
+    #create folders and copy webconfig
+
+    if ((test-path C:\inetpub\wwwroot\.well-known) -eq $false) { mkdir C:\inetpub\wwwroot\.well-known }
+    copy C:\support\Web_Config.xml C:\inetpub\wwwroot\.well-known\Web.Config
     
+ 
     #Time to configure iis host header and get a certificate
     new-webbinding -hostheader $HostName -name "Default Web Site" -protocol http
     #request a lets encrypt cert

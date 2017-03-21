@@ -21,17 +21,15 @@ function check-servercertificate($ServerToCheck)
 
 $RegistryLocation = "HKLM:\Software\CloudDesktop"
 
-#Get Server public IP
-#$getIP = (Invoke-RestMethod -Method "get" -Uri "localhost/backend/api/v1.0/get-pubip" -ContentType application/json).ip
 
 #We will first check if this is the first time the script runs
 if ((Get-ItemProperty -Path $RegistryLocation -Name FirstRun -ErrorAction SilentlyContinue).firstrun)
 {$firstrun=$false}
 else
 {
-	mkdir $RegistryLocation
+    mkdir $RegistryLocation
     #if script runs manualy we ask for the email address we need to send the connaection information to
-	if ($cpelsEmail.Length -eq 0) {$cpelsEmail = Read-Host 'What is your email address?'} else {sleep 60}
+    if ($cpelsEmail.Length -eq 0) {$cpelsEmail = Read-Host 'What is your email address?'} else {sleep 60}
     Set-ItemProperty -Path $RegistryLocation -Name FirstRun -Value "done"
     $firstrun=$true
 }
@@ -57,11 +55,30 @@ if ((Test-Path $destination) -eq $false)
     #Create Schedulet task
     schtasks.exe /create /RU system /TN updateserverServeronStartup /XML c:\support\updateserverServeronStartup.xml
 }
+$destination = "c:\support\letsencrypt-win-simple.V1.9.3.zip"
+if ((Test-Path $destination) -eq $false)
+{
+	$source = "https://mydesktopfunctions.blob.core.windows.net/deploymentscript/letsencrypt-win-simple.V1.9.3.zip"
+	$destination = "c:\support\letsencrypt-win-simple.V1.9.3.zip"
+	Invoke-WebRequest $source -OutFile $destination	#-ContentType text/plain
+	#unzip the file
+	$shell_app=new-object -com shell.application
+	$filename = $destination
+	$zip_file = $shell_app.namespace($destination)
+	$destination = $shell_app.namespace("c:\support")
+	$destination.Copyhere($zip_file.items())
+}
 
 
-#The request we send to the API for certificate and DNS updates
+#time to find the current dns name of this server
+$hostname = (Get-ItemProperty -Path $RegistryLocation -Name hostname -ErrorAction Ignore).hostname
+if(!$hostname) {$hostname ="" }
+$saveforcompare = $hostname #we save the name for later, if there is not a match meaning new hostname is given we need to create a new certificate to
+
+#The request we send to the API for DNS updates
 $body = @{
     'Email'= $cpelsEmail
+    'hostname' = $hostname 
 }
 
 ConvertTo-Json $body
@@ -74,35 +91,28 @@ catch
 {write-host "error in communication"
 break}
 
-$source = $response.keysource
-$certdestination = "c:\support\key.p12"
-Invoke-WebRequest $source -OutFile $certdestination
-$mypwd = ConvertTo-SecureString -String $response.keypass -Force -AsPlainText
-try{
-$Thumbprint = Import-PfxCertificate -FilePath $certdestination cert:\localMachine\my -Password $mypwd -Confirm:$false
-}
-catch {
-#We need to break if certifacte instalation fails
-write-host "certificate import error"
-break}
-
-
 $HostName = $response.DNSName
-if ((Test-Path $certdestination) -eq $TRUE) {rm $certdestination -Force}
-#Set-ItemProperty -Path $RegistryLocation -Name cpelsSerial -Value $response.info.serial
-    
-
-
+Set-ItemProperty -Path $RegistryLocation -Name hostname -Value $HostName
+ 
 if ((Get-WindowsFeature -Name RDS-Gateway).installed -eq $false) 
 {
 	Add-WindowsFeature -Name RDS-Gateway, RDS-Web-Access, rsat-ad-powershell -IncludeAllSubFeature -IncludeManagementTools -Restart
 }
 Import-Module remotedesktopservices
 
-if (((Get-ItemProperty -Path "HKLM:\Software\Microsoft\Windows NT\CurrentVersion\TerminalServerGateway\Config\Core" -Name EnforceChannelBinding).EnforceChannelBinding) -ne 0)
+if ($saveforcompare -ne $hostname)
 {
     
-    Set-Item -Path RDS:\GatewayServer\SSLCertificate\Thumbprint -Value $Thumbprint.Thumbprint
+    #Time to configure iis host header and get a certificate
+    new-webbinding -hostheader $HostName -name "Default Web Site" -protocol http
+    #request a lets encrypt cert
+    #Source and credits go to https://github.com/Lone-Coder/letsencrypt-win-simple/releases
+    C:\support\letsencrypt --signeremail $cpelsEmail --accepttos --emailaddress $cpelsEmail --usedefaulttaskuser --baseuri "https://acme-v01.api.letsencrypt.org/" --manualhost $HostName --webroot "%SystemDrive%\inetpub\wwwroot" --centralsslstore C:\support
+    $certfile = "C:\support\" + $HostName + ".pfx"
+    $importedcert = Import-PfxCertificate -FilePath $certfile cert:\localMachine\my -Confirm:$false
+
+    #Set the new thumprint
+    Set-Item -Path RDS:\GatewayServer\SSLCertificate\Thumbprint -Value $importedcert.Thumbprint
 
     #Disable rdp channel binding
     new-ItemProperty -Path "HKLM:\Software\Microsoft\Windows NT\CurrentVersion\TerminalServerGateway\Config\Core" -Name EnforceChannelBinding -Value 0
@@ -134,31 +144,18 @@ if (((Get-ItemProperty -Path "HKLM:\Software\Microsoft\Windows NT\CurrentVersion
 
 #Configure RDP website
 Set-WebConfigurationProperty -pspath "iis:\Sites\Default Web Site\RDWeb\Pages" -filter "/appSettings/add[@key='DefaultTSGateway']" -name value -Value "$HostName"
+$certfile = "C:\support\" + $HostName + ".pfx"
+$importedcert = Import-PfxCertificate -FilePath $certfile cert:\localMachine\my -Confirm:$false
 
-Set-Item -Path RDS:\GatewayServer\SSLCertificate\Thumbprint -Value $Thumbprint.Thumbprint
-sleep 5
-#Restart Services
-#we restart the webserver every day, this is not the main goal but solve the installation issue
-#where the gateway is not picking up the new settings
-write-host "Restart Services"
-Restart-Service "W3SVC" -Force
-Restart-Service "remote desktop gateway" -Force
-
-#Life is not perfect and certificate installation will fail sometimes that is what we check the actual server certificate to make shure all is oke
-if ((check-servercertificate -ServerToCheck localhost) -ne $Thumbprint.Thumbprint)
+if ((get-Item -Path RDS:\GatewayServer\SSLCertificate\Thumbprint).CurrentValue -ne (check-servercertificate -ServerToCheck localhost))
 {
-write-host "Stopping the gateway and webserver"
-Stop-Service "W3SVC" -Force
-Stop-Service "remote desktop gateway" -Force
 
-Set-Item -Path RDS:\GatewayServer\SSLCertificate\Thumbprint -Value $Thumbprint.Thumbprint
-
-#Restart Services
-#write-host "Restart Services"
-#Restart-Service "W3SVC" -Force
-#Restart-Service "remote desktop gateway" -Force
-
-Restart-Computer -Force
-
-
-} else {write-host "All oke now"}
+	Set-Item -Path RDS:\GatewayServer\SSLCertificate\Thumbprint -Value $importedcert.Thumbprint
+	sleep 5
+	#Restart Services
+	#we restart the webserver every day, this is not the main goal but solve the installation issue
+	#where the gateway is not picking up the new settings
+	write-host "Restart Services"
+	Restart-Service "W3SVC" -Force
+	Restart-Service "remote desktop gateway" -Force
+}

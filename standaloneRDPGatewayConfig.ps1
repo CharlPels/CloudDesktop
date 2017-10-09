@@ -58,7 +58,8 @@ if ((Test-Path $destination) -eq $false)
 $destination = "c:\support\letsencrypt-win-simple.V1.9.3.zip"
 if ((Test-Path $destination) -eq $false)
 {
-	$source = "https://mydesktopfunctions.blob.core.windows.net/deploymentscript/letsencrypt-win-simple.V1.9.3.zip"
+	#$source = "https://mydesktopfunctions.blob.core.windows.net/deploymentscript/letsencrypt-win-simple.V1.9.3.zip"
+	$source = "https://mydesktopfunction.blob.core.windows.net/deploymentscript/letsencrypt-win-simple.V1.9.7.0-beta1.zip"
 	$destination = "c:\support\letsencrypt-win-simple.V1.9.3.zip"
 	Invoke-WebRequest $source -OutFile $destination	#-ContentType text/plain
 	#unzip the file
@@ -83,7 +84,7 @@ $body = @{
 
 ConvertTo-Json $body
 try{
-$response = Invoke-RestMethod -Method "post" -Uri "https://mydesktopfunction.azurewebsites.net/api/RequestDnsEntry?code=d16Joako2zN0VMKj5KaEVmnAoNAaWWZqjyWHRuqxuPbGf79Qo56NdA==" -Body (ConvertTo-Json $body) -ContentType application/json
+$response = Invoke-RestMethod -Method "post" -Uri "https://mydesktopfunctions.azurewebsites.net/api/RequestDnsEntry?code=b/R4OUQaVYNHp/LqNSuDpnsvXqaUM289K976ZLzLSV550MryR5peuQ==" -Body (ConvertTo-Json $body) -ContentType application/json
 
 $response = ConvertFrom-Json $response
 }

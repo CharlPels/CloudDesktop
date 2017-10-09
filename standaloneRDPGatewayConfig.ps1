@@ -58,8 +58,7 @@ if ((Test-Path $destination) -eq $false)
 $destination = "c:\support\letsencrypt-win-simple.V1.9.3.zip"
 if ((Test-Path $destination) -eq $false)
 {
-	#$source = "https://mydesktopfunctions.blob.core.windows.net/deploymentscript/letsencrypt-win-simple.V1.9.3.zip"
-	$source = "https://mydesktopfunction.blob.core.windows.net/deploymentscript/letsencrypt-win-simple.V1.9.7.0-beta1.zip"
+	$source = "https://mydesktopfunction.blob.core.windows.net/deploymentscript/letsencrypt-win-simple.V1.9.3.zip"
 	$destination = "c:\support\letsencrypt-win-simple.V1.9.3.zip"
 	Invoke-WebRequest $source -OutFile $destination	#-ContentType text/plain
 	#unzip the file

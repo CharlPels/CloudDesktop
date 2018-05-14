@@ -11,7 +11,12 @@
         "description": "This name will also be used to prefix the network security group, storage, virtual network, network card, subnet and public IP address name."
       }
     },
-
+    "emailadress": {
+      "type": "string",
+      "metadata": {
+        "description": "The Email address to send startSLL certificate related mail to like warning when your certificate expires."
+      }
+    },
     "adminUsername": {
       "type": "string",
       "minLength": 5,
@@ -29,15 +34,15 @@
       }
     },
 
-    "YourEmailAddress": {
+    "dnsname": {
       "type": "string",
       "minLength": 5,
       "metadata": {
-        "description": "Your Email address used for sending connection information."
+        "description": "Your dns name for the server like myownserver."
       }
     },
-  
-    
+
+
     "vmSize": {
       "type": "string",
       "defaultValue": "Standard_D1_v2",
@@ -64,7 +69,7 @@
       }
     },
 
-        "windowsOSVersion": {
+    "windowsOSVersion": {
       "type": "string",
       "defaultValue": "2012-R2-Datacenter",
       "allowedValues": [
@@ -96,8 +101,7 @@
     "virtualNetworkName": "[concat(parameters('VMName'),'_vnet')]",
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
     "subnetRef": "[concat(variables('vnetID'),'/subnets/',variables('subnetName'))]",
-    "scriptArgs": "[concat(parameters('YourEmailAddress'))]",
-    "dnsNameForPublicIP": "[concat(parameters('VMName'), uniqueString(parameters('VMName')))]"
+    "publicIpId": "[resourceId('Microsoft.Network/publicIPAddresses',variables('publicIPAddressName'))]"
   },
   "resources": [
 
@@ -181,7 +185,7 @@
       "properties": {
         "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
         "dnsSettings": {
-          "domainNameLabel": "[tolower(variables('dnsNameForPublicIP'))]" 
+          "domainNameLabel": "[tolower(parameters('dnsname'))]"
         }
       }
     },
@@ -313,11 +317,17 @@
               "fileUris": [
                 "https://raw.githubusercontent.com/CharlPels/CloudDesktop/master/standaloneRDPGatewayConfig.ps1"
               ],
-              "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -File standaloneRDPGatewayConfig.ps1 ',variables('scriptArgs'))]"
+              "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -File standaloneRDPGatewayConfig.ps1 ' ,concat(reference(variables('publicIpId'),'2015-06-15').dnsSettings.fqdn), ' ',parameters('emailadress'))]"
             }
           }
         }
       ]
     }
-  ]
+  ],
+  "outputs": {
+    "fqdn": {
+      "value": "[reference(variables('publicIpId'),'2015-06-15').dnsSettings.fqdn]",
+      "type": "string"
+    }
+  }
 }

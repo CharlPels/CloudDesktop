@@ -1,4 +1,5 @@
 [string]$hostname = $args[0]
+[string]$Email = $args[1]
 
 function check-servercertificate($ServerToCheck)
 {
@@ -76,7 +77,7 @@ if ((Get-WindowsFeature -Name RDS-Gateway).installed -eq $false)
 Import-Module remotedesktopservices
 
 #Code to run only onetime
-if ($firstrun -eq $false)
+if ($firstrun -eq $true)
 {
     #create folders and copy webconfig
     if ((test-path C:\inetpub\wwwroot\.well-known) -eq $false) { mkdir C:\inetpub\wwwroot\.well-known }
@@ -87,7 +88,7 @@ if ($firstrun -eq $false)
     new-webbinding -hostheader $HostName -name "Default Web Site" -protocol http
     #request a lets encrypt cert
     #Source and credits go to https://github.com/Lone-Coder/letsencrypt-win-simple/releases
-    C:\support\letsencrypt --signeremail $cpelsEmail --accepttos --emailaddress $cpelsEmail --usedefaulttaskuser --baseuri "https://acme-v01.api.letsencrypt.org/" --manualhost $HostName --webroot "%SystemDrive%\inetpub\wwwroot" --centralsslstore C:\support
+    C:\support\letsencrypt --signeremail $Email --accepttos --emailaddress $Email --usedefaulttaskuser --baseuri "https://acme-v01.api.letsencrypt.org/" --manualhost $HostName --webroot "%SystemDrive%\inetpub\wwwroot" --centralsslstore C:\support
     $certfile = "C:\support\" + $HostName + ".pfx"
     $importedcert = Import-PfxCertificate -FilePath $certfile cert:\localMachine\my -Confirm:$false
 

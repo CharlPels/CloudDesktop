@@ -1,4 +1,4 @@
-[string]$cpelsEmail = $args[0]
+[string]$hostname = $args[0]
 
 function check-servercertificate($ServerToCheck)
 {
@@ -28,13 +28,11 @@ if ((Get-ItemProperty -Path $RegistryLocation -Name FirstRun -ErrorAction Silent
 else
 {
     mkdir $RegistryLocation
-    #if script runs manualy we ask for the email address we need to send the connaection information to
-    if ($cpelsEmail.Length -eq 0) {$cpelsEmail = Read-Host 'What is your email address?'} else {sleep 60}
     Set-ItemProperty -Path $RegistryLocation -Name FirstRun -Value "done"
     $firstrun=$true
 }
 
-if ($cpelsEmail.Length -gt 0 -and $cpelsEmail -ne "-Confirm:") {Set-ItemProperty -Path $RegistryLocation -Name cpelsEmail -Value $cpelsEmail} else {$cpelsEmail = (Get-ItemProperty -Path $RegistryLocation -Name cpelsEmail -ErrorAction SilentlyContinue).cpelsEmail}
+if ($hostname.Length -gt 0) {Set-ItemProperty -Path $RegistryLocation -Name hostname -Value $hostname} else {$hostname = (Get-ItemProperty -Path $RegistryLocation -Name hostname -ErrorAction SilentlyContinue).hostname}
 #$cpelsSerial = (Get-ItemProperty -Path $RegistryLocation -Name cpelsSerial -ErrorAction SilentlyContinue).cpelsSerial
 #if($cpelsSerial) {write-host "serial found"} else {$cpelsSerial =  ""}
 
@@ -70,40 +68,17 @@ if ((Test-Path $destination) -eq $false)
 }
 
 
-#time to find the current dns name of this server
-$hostname = (Get-ItemProperty -Path $RegistryLocation -Name hostname -ErrorAction Ignore).hostname
-if(!$hostname) {$hostname ="" }
-$saveforcompare = $hostname #we save the name for later, if there is not a match meaning new hostname is given we need to create a new certificate to
 
-#The request we send to the API for DNS updates
-$body = @{
-    'Email'= $cpelsEmail
-    'hostname' = $hostname 
-}
-
-ConvertTo-Json $body
-try{
-$response = Invoke-RestMethod -Method "post" -Uri "https://mydesktopfunctions.azurewebsites.net/api/RequestDnsEntry?code=b/R4OUQaVYNHp/LqNSuDpnsvXqaUM289K976ZLzLSV550MryR5peuQ==" -Body (ConvertTo-Json $body) -ContentType application/json
-
-$response = ConvertFrom-Json $response
-}
-catch
-{write-host "error in communication"
-break}
-
-$HostName = $response.DNSName
-Set-ItemProperty -Path $RegistryLocation -Name hostname -Value $HostName
- 
 if ((Get-WindowsFeature -Name RDS-Gateway).installed -eq $false) 
 {
 	Add-WindowsFeature -Name RDS-Gateway, RDS-Web-Access, rsat-ad-powershell -IncludeAllSubFeature -IncludeManagementTools -Restart
 }
 Import-Module remotedesktopservices
 
-if ($saveforcompare -ne $hostname)
+#Code to run only onetime
+if ($firstrun -eq $false)
 {
     #create folders and copy webconfig
-
     if ((test-path C:\inetpub\wwwroot\.well-known) -eq $false) { mkdir C:\inetpub\wwwroot\.well-known }
     copy C:\support\Web_Config.xml C:\inetpub\wwwroot\.well-known\Web.Config
     

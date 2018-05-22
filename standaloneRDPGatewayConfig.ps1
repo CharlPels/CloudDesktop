@@ -1,5 +1,6 @@
 [string]$hostname = $args[0]
 [string]$Email = $args[1]
+$args > args.txt
 
 function check-servercertificate($ServerToCheck)
 {

@@ -58,6 +58,7 @@ if ((Test-Path $destination) -eq $false)
 $destination = "c:\support\letsencrypt-win-simple.V1.9.3.zip"
 if ((Test-Path $destination) -eq $false)
 {
+	[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 	$source = "https://github.com/PKISharp/win-acme/releases/download/v1.9.3/letsencrypt-win-simple.V1.9.3.zip"
 	$destination = "c:\support\letsencrypt-win-simple.V1.9.3.zip"
 	Invoke-WebRequest $source -OutFile $destination	#-ContentType text/plain
